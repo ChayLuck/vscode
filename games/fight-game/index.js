@@ -19,7 +19,7 @@ class Sprite {
         this.position = position
         this.velocity = velocity
         this.height = 150
-        this.width = 70
+        this.width = 50
         this.lastKey
         this.attackBox = {
             position:this.position,
