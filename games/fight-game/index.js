@@ -15,14 +15,18 @@ const gravity = 0.7
 //{}içine alarak tek objede istenen şeyleri taşıyoruz
 //hepsi gelmesi de gerekmiyor
 class Sprite {
-    constructor({position,velocity,colour = "blue"}){
+    constructor({position,velocity,colour = "blue",offset}){
         this.position = position
         this.velocity = velocity
         this.height = 150
         this.width = 50
         this.lastKey
         this.attackBox = {
-            position:this.position,
+            position:{
+            x : this.position.x,
+            y : this.position.y
+            },
+            offset,
             width:100,
             height:50,
         }
@@ -45,6 +49,9 @@ class Sprite {
 
     update(){
         this.draw()
+        this.attackBox.position.x = this.position.x + this.attackBox.offset.x
+        this.attackBox.position.y = this.position.y
+
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
         if(this.position.y + this.height + this.velocity.y >= canvas.height){
@@ -63,12 +70,14 @@ class Sprite {
 //Objeleri konumlarla oluşturduk
 const player = new Sprite({
 position: {x:0,y:0},
-velocity: {x:0,y:1}}) 
+velocity: {x:0,y:1},
+offset: {x:0,y:0}}) 
 
 const enemy = new Sprite({
 position: {x:400,y:100},
 velocity: {x:0,y:1},
-colour: "red"}) 
+colour: "red",
+offset: {x:-50,y:0}}) 
 
 const keys = {
     a: {
@@ -84,6 +93,15 @@ const keys = {
     ArrowRight: {
         pressed : false
     },
+}
+
+function rectangularCollision({rectangle1,rectangle2}){
+    return (
+        rectangle1.attackBox.position.x + rectangle1.attackBox.width >= rectangle2.position.x &&
+        rectangle1.attackBox.position.x <= rectangle2.position.x + rectangle2.width &&
+        rectangle1.attackBox.position.y + rectangle1.attackBox.height >= rectangle2.position.y &&
+        rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height
+    )
 }
 
 //let lastKey ama gerekmiyor artık
@@ -113,14 +131,19 @@ function animate(){
     } 
 
     //Detect collision
-    if (player.attackBox.position.x + player.attackBox.width >= enemy.position.x &&
-        player.attackBox.position.x <= enemy.position.x + enemy.width &&
-        player.attackBox.position.y + player.attackBox.height >= enemy.position.y &&
-        player.attackBox.position.y <= enemy.position.y + enemy.height &&
+    if (rectangularCollision({rectangle1:player,rectangle2:enemy}) &&
         player.isAttacking
     ){
         player.isAttacking = false
-        console.log("attacked");
+        console.log("player attacked");
+
+    }
+
+    if (rectangularCollision({rectangle1:enemy,rectangle2:player}) &&
+        enemy.isAttacking
+    ){
+        enemy.isAttacking = false
+        console.log("enemy attacked");
 
     }
 }
@@ -155,8 +178,10 @@ window.addEventListener('keydown', (event) =>{
         case 'ArrowUp':
             enemy.velocity.y = -20
         break
+        case 'ArrowDown':
+            enemy.attack()
+        break
     }
-    console.log(event.key);
 })
 
 window.addEventListener('keyup', (event) =>{
@@ -176,5 +201,4 @@ window.addEventListener('keyup', (event) =>{
             keys.ArrowLeft.pressed = false
         break
     }
-    console.log(event.key);
 })
