@@ -15,7 +15,7 @@ const gravity = 0.7
 //{}içine alarak tek objede istenen şeyleri taşıyoruz
 //hepsi gelmesi de gerekmiyor
 class Sprite {
-    constructor({position,velocity,colour = "blue",offset}){
+    constructor({position,velocity,color = "blue",offset}){
         this.position = position
         this.velocity = velocity
         this.height = 150
@@ -30,12 +30,12 @@ class Sprite {
             width:100,
             height:50,
         }
-        this.colour = colour
+        this.color = color
         this.isAttacking
     }
 
     draw(){
-        c.fillStyle = this.colour
+        c.fillStyle = this.color
         c.fillRect(this.position.x,this.position.y,this.width,this.height)
         
         if(this.isAttacking){
@@ -76,7 +76,7 @@ offset: {x:0,y:0}})
 const enemy = new Sprite({
 position: {x:400,y:100},
 velocity: {x:0,y:1},
-colour: "red",
+color: "red",
 offset: {x:-50,y:0}}) 
 
 const keys = {
