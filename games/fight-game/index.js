@@ -1,7 +1,7 @@
 //çalışacağımız canvası alıyourz
 canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
-
+//bakalım
 //boyut
 canvas.width = 1024
 canvas.height = 576
