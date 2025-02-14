@@ -1,7 +1,6 @@
 //çalışacağımız canvası alıyourz
 canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
-//bakalım
 //boyut
 canvas.width = 1024
 canvas.height = 576
@@ -32,6 +31,7 @@ class Sprite {
         }
         this.color = color
         this.isAttacking
+        this.health = 100
     }
 
     draw(){
@@ -135,7 +135,8 @@ function animate(){
         player.isAttacking
     ){
         player.isAttacking = false
-        console.log("player attacked");
+        enemy.health -= 20
+        document.querySelector('#enemyHealth').style.width = enemy.health + '%'
 
     }
 
@@ -143,7 +144,8 @@ function animate(){
         enemy.isAttacking
     ){
         enemy.isAttacking = false
-        console.log("enemy attacked");
+        player.health -= 20
+        document.querySelector('#playerHealth').style.width = player.health + '%'
 
     }
 }

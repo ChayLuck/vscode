@@ -1,16 +1,33 @@
+<head>
+
+<!--Her zaman koy ki orantılasın-->
+<style>
+    *{
+        box-sizing: border-box; 
+    }
+</style>
+
+</head>
+
 <body>
     <!--Red Container Div-->
     <div style = "position: relative; display: inline-block;">
         <!--Smaller Red Container Div-->
-        <div style = "position: absolute; display: flex; width: 100%; align-items: center;">
+        <div style = "position: absolute; display: flex; width: 100%; align-items: center; padding: 20px;">
             <!--Player health-->
-            <div style = "background-color: yellow; height: 30px; width: 100%" ></div>
+            <div style = "position: relative; height: 30px; width: 100%; display: flex; justify-content: flex-end;">
+                <div style = "background-color: yellow; height: 30px; width: 100%;" ></div>
+                <div id = "playerHealth" style = "position: absolute; background: rgb(162, 0, 255); top: 0%; right: 0%; bottom: 0%; width: 100%;" ></div>
+               </div>
             <!--Timer-->
             <div style = "background-color: white; height: 100px; width: 100px; flex-shrink: 0;"></div>
             <!--Enemy health-->
-            <div style = "background-color: yellow; height: 30px; width: 100%" ></div>
+            <div style = "position: relative; height: 30px; width: 100%">
+             <div style = "background-color: yellow; height: 30px;" ></div>
+             <div id = "enemyHealth" style = "position: absolute; background: rgb(162, 0, 255); top: 0%; right: 0%; bottom: 0%; left: 0%;" ></div>
+            </div>
         </div>
         <canvas></canvas>
-    </div>
+    </div> 
 <script src="index.js"></script>>
 </body>
