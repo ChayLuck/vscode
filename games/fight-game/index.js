@@ -10,70 +10,38 @@ c.fillRect(0,0,canvas.width,canvas.height)
 
 const gravity = 0.7
 
-//yeni bir obje oluşturduğumuz zaman otomatik pozisyonata
-//{}içine alarak tek objede istenen şeyleri taşıyoruz
-//hepsi gelmesi de gerekmiyor
-class Sprite {
-    constructor({position,velocity,color = "blue",offset}){
-        this.position = position
-        this.velocity = velocity
-        this.height = 150
-        this.width = 50
-        this.lastKey
-        this.attackBox = {
-            position:{
-            x : this.position.x,
-            y : this.position.y
-            },
-            offset,
-            width:100,
-            height:50,
-        }
-        this.color = color
-        this.isAttacking
-        this.health = 100
-    }
-
-    draw(){
-        c.fillStyle = this.color
-        c.fillRect(this.position.x,this.position.y,this.width,this.height)
-        
-        if(this.isAttacking){
-        c.fillStyle = "green"
-        c.fillRect(
-            this.attackBox.position.x, 
-            this.attackBox.position.y, 
-            this.attackBox.width, 
-            this.attackBox.height)}
-    }
-
-    update(){
-        this.draw()
-        this.attackBox.position.x = this.position.x + this.attackBox.offset.x
-        this.attackBox.position.y = this.position.y
-
-        this.position.x += this.velocity.x
-        this.position.y += this.velocity.y
-        if(this.position.y + this.height + this.velocity.y >= canvas.height){
-            this.velocity.y = 0
-        } else {this.velocity.y += gravity}
-    }
-
-    attack(){
-        this.isAttacking = true
-        setTimeout(()=>{
-            this.isAttacking = false
-        }, 100)
-    }
-}
-
 //Objeleri konumlarla oluşturduk
-const player = new Sprite({
+
+const background = new Sprite({
+    position: {x:0,y:0},
+    width: canvas.width,
+    height: canvas.height,
+    imageSrc: './img/Battleground2.png'
+})
+
+const girl = new Sprite({
+    position: {x:230,y:200},
+    width: canvas.width,
+    height: canvas.height,
+    imageSrc: './img/64X128_Idle_Free.png',
+    frameMax: 8,
+    frameMax2: 4
+})
+const girl2 = new Sprite({
+    position: {x:665,y:200},
+    width: canvas.width,
+    height: canvas.height,
+    imageSrc: './img/64X128_Idle_Free.png',
+    frameMax: 8,
+    frameMax2: 4
+})
+
+const player = new Fighter({
 position: {x:0,y:0},
 velocity: {x:0,y:1},
 offset: {x:0,y:0}}) 
 
-const enemy = new Sprite({
+const enemy = new Fighter({
 position: {x:400,y:100},
 velocity: {x:0,y:1},
 color: "red",
@@ -95,14 +63,7 @@ const keys = {
     },
 }
 
-function rectangularCollision({rectangle1,rectangle2}){
-    return (
-        rectangle1.attackBox.position.x + rectangle1.attackBox.width >= rectangle2.position.x &&
-        rectangle1.attackBox.position.x <= rectangle2.position.x + rectangle2.width &&
-        rectangle1.attackBox.position.y + rectangle1.attackBox.height >= rectangle2.position.y &&
-        rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height
-    )
-}
+decreaseTimer()
 
 //let lastKey ama gerekmiyor artık
 
@@ -111,6 +72,9 @@ function animate(){
     window.requestAnimationFrame(animate)
     c.fillStyle = 'black' //arkayı her update öncesi sil
     c.fillRect(0,0,canvas.width,canvas.height)
+    background.update()
+    girl.update()
+    girl2.update()
     player.update()
     enemy.update()
     
@@ -147,6 +111,17 @@ function animate(){
         player.health -= 20
         document.querySelector('#playerHealth').style.width = player.health + '%'
 
+    }
+    //end game
+    if (player.health <= 0 || enemy.health <= 0){
+        clearTimeout(timerId)
+        document.querySelector('#displayText').style.display = 'flex'
+        if (player.health === enemy.health){
+            document.querySelector('#displayText').innerHTML = 'Tie'}
+            else if (player.health > enemy.health){
+                document.querySelector('#displayText').innerHTML = 'Player Wins'} 
+                else if (player.health < enemy.health){
+                document.querySelector('#displayText').innerHTML = 'Enemy Wins'}
     }
 }
 animate()
