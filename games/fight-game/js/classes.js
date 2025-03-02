@@ -33,8 +33,8 @@ class Sprite {
             this.image.height/this.framesMax2,
             this.position.x - this.offset.x,
             this.position.y - this.offset.y,
-            (this.width/this.framesMax)*this.scale,
-            (this.height/this.framesMax2)*this.scale
+            (this.image.width/this.framesMax)*this.scale,
+            (this.image.height/this.framesMax2)*this.scale
         )
     }
 

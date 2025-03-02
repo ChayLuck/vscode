@@ -16,7 +16,8 @@ const background = new Sprite({
     position: {x:0,y:0},
     width: canvas.width,
     height: canvas.height,
-    imageSrc: './img/Battleground2.png'
+    imageSrc: './img/Battleground2.png',
+    scale: 0.55
 })
 
 const girl = new Sprite({
@@ -25,15 +26,17 @@ const girl = new Sprite({
     height: canvas.height,
     imageSrc: './img/64X128_Idle_Free.png',
     framesMax: 8,
-    framesMax2: 4
+    framesMax2: 4,
+    scale: 1.25
 })
 const girl2 = new Sprite({
-    position: {x:665,y:200},
+    position: {x:765,y:200},
     width: canvas.width,
     height: canvas.height,
     imageSrc: './img/64X128_Idle_Free.png',
     framesMax: 8,
-    framesMax2: 4
+    framesMax2: 4,
+    scale: 1.25
 })
 
 const player = new Fighter({
@@ -42,7 +45,7 @@ velocity: {x:0,y:1},
 offset: {x:0,y:0},
 imageSrc: './img/Player1/Idle.png',
 framesMax: 8,
-scale: 2,
+scale: 2.5,
 offset: {x:70,y:95},
 sprites: {
     idle: {
