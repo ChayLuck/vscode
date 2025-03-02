@@ -104,16 +104,24 @@ class Fighter extends Sprite {
         this.draw()
         if(!this.dead){
         this.animateFrames()}
-
+    
         this.attackBox.position.x = this.position.x + this.attackBox.offset.x
         this.attackBox.position.y = this.position.y + this.attackBox.offset.y
-
+    
        /*/ c.fillRect(
             this.attackBox.position.x,
             this.attackBox.position.y,
             this.attackBox.width,
             this.attackBox.height) /*/
-
+  
+        // Left boundary
+        if (this.position.x < 0) {
+            this.position.x = 0
+        }
+        // Right boundary (canvas width minus character width)
+        if (this.position.x + this.width > canvas.width) {
+            this.position.x = canvas.width - this.width
+        }
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
         if(this.position.y + this.height + this.velocity.y >= canvas.height - 196){

@@ -216,17 +216,17 @@ const ai = {
     // Set difficulty parameters
     switch (ai.difficulty) {
       case 'easy':
-        ai.thinkingTime = 500;
+        ai.thinkingTime = 300;
         ai.attackCooldown = Math.max(ai.attackCooldown, 0);
         ai.distancePreference = { min: 150, max: 250 };
         break;
       case 'medium':
-        ai.thinkingTime = 200;
+        ai.thinkingTime = 100;
         ai.attackCooldown = Math.max(ai.attackCooldown, 0);
         ai.distancePreference = { min: 100, max: 200 };
         break;
       case 'hard':
-        ai.thinkingTime = 100;
+        ai.thinkingTime = 50;
         ai.attackCooldown = Math.max(ai.attackCooldown, 0);
         ai.distancePreference = { min: 80, max: 160 };
         break;
