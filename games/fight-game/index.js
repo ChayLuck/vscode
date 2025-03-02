@@ -39,7 +39,11 @@ const girl2 = new Sprite({
 const player = new Fighter({
 position: {x:0,y:0},
 velocity: {x:0,y:1},
-offset: {x:0,y:0}}) 
+offset: {x:0,y:0},
+imageSrc: './img/Player1/Idle.png',
+frameMax: 8,
+scale: 2,
+offset: {x:70,y:95}}) 
 
 const enemy = new Fighter({
 position: {x:400,y:100},
