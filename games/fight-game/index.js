@@ -24,16 +24,16 @@ const girl = new Sprite({
     width: canvas.width,
     height: canvas.height,
     imageSrc: './img/64X128_Idle_Free.png',
-    frameMax: 8,
-    frameMax2: 4
+    framesMax: 8,
+    framesMax2: 4
 })
 const girl2 = new Sprite({
     position: {x:665,y:200},
     width: canvas.width,
     height: canvas.height,
     imageSrc: './img/64X128_Idle_Free.png',
-    frameMax: 8,
-    frameMax2: 4
+    framesMax: 8,
+    framesMax2: 4
 })
 
 const player = new Fighter({
@@ -41,9 +41,32 @@ position: {x:0,y:0},
 velocity: {x:0,y:1},
 offset: {x:0,y:0},
 imageSrc: './img/Player1/Idle.png',
-frameMax: 8,
+framesMax: 8,
 scale: 2,
-offset: {x:70,y:95}}) 
+offset: {x:70,y:95},
+sprites: {
+    idle: {
+        imageSrc: './img/Player1/Idle.png',
+        framesMax: 8
+    },
+    attack: {
+        imageSrc: './img/Player1/Attack.png',
+        framesMax: 6
+    },
+    die: {
+        imageSrc: './img/Player1/Die.png',
+        framesMax: 8
+    },
+    jump: {
+        imageSrc: './img/Player1/Jump.png',
+        framesMax: 2
+    },
+    run: {
+        imageSrc: './img/Player1/Run.png',
+        framesMax: 8
+    },
+}
+}) 
 
 const enemy = new Fighter({
 position: {x:400,y:100},
@@ -80,15 +103,23 @@ function animate(){
     girl.update()
     girl2.update()
     player.update()
-    enemy.update()
+    //enemy.update()
     
     //Player movement
     player.velocity.x = 0
+
     if (keys.a.pressed && player.lastKey === 'a'){
         player.velocity.x = -3
+        player.switchSprite('run')
     } else if (keys.d.pressed && player.lastKey === 'd'){
         player.velocity.x = 3
-    } 
+        player.switchSprite('run')
+    } else {
+        player.switchSprite('idle')}
+
+    if (player.velocity.y < 0){
+        player.switchSprite('jump')
+    }
 
     //Enemy movement
     enemy.velocity.x = 0
