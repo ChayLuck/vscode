@@ -41,19 +41,19 @@ const girl2 = new Sprite({
 
 const player = new Fighter({
 position: {x:0,y:0},
-velocity: {x:0,y:1},
+velocity: {x:0,y:0},
 offset: {x:0,y:0},
 imageSrc: './img/Player1/Idle.png',
 framesMax: 8,
 scale: 2.5,
-offset: {x:70,y:95},
+offset: {x:215,y:157},
 sprites: {
     idle: {
         imageSrc: './img/Player1/Idle.png',
         framesMax: 8
     },
-    attack: {
-        imageSrc: './img/Player1/Attack.png',
+    attack1: {
+        imageSrc: './img/Player1/Attack1.png',
         framesMax: 6
     },
     die: {
@@ -64,18 +64,63 @@ sprites: {
         imageSrc: './img/Player1/Jump.png',
         framesMax: 2
     },
+    fall: {
+        imageSrc: './img/Player1/Fall.png',
+        framesMax: 2
+    },
     run: {
         imageSrc: './img/Player1/Run.png',
         framesMax: 8
     },
+},
+attackBox: {
+    offset: {x:100,y:50},
+    width: 160,
+    height: 50
 }
 }) 
 
 const enemy = new Fighter({
 position: {x:400,y:100},
-velocity: {x:0,y:1},
-color: "red",
-offset: {x:-50,y:0}}) 
+velocity: {x:0,y:0},
+offset: {x:-50,y:0},
+imageSrc: './img/Player2/Idle.png',
+framesMax: 4,
+scale: 2.5,
+offset: {x:215,y:167},
+sprites: {
+    idle: {
+        imageSrc: './img/Player2/Idle.png',
+        framesMax: 4
+    },
+    attack1: {
+        imageSrc: './img/Player2/Attack1.png',
+        framesMax: 4
+    },
+    die: {
+        imageSrc: './img/Player2/Die.png',
+        framesMax: 8
+    },
+    jump: {
+        imageSrc: './img/Player2/Jump.png',
+        framesMax: 2
+    },
+    fall: {
+        imageSrc: './img/Player2/Fall.png',
+        framesMax: 2
+    },
+    run: {
+        imageSrc: './img/Player2/Run.png',
+        framesMax: 8
+    },
+},
+attackBox: {
+    offset: {x:-170,y:50},
+    width: 170,
+    height: 50
+}
+
+}) 
 
 const keys = {
     a: {
@@ -106,49 +151,70 @@ function animate(){
     girl.update()
     girl2.update()
     player.update()
-    //enemy.update()
+    enemy.update()
     
     //Player movement
     player.velocity.x = 0
 
     if (keys.a.pressed && player.lastKey === 'a'){
-        player.velocity.x = -3
+        player.velocity.x = -5
         player.switchSprite('run')
     } else if (keys.d.pressed && player.lastKey === 'd'){
-        player.velocity.x = 3
+        player.velocity.x = 5
         player.switchSprite('run')
     } else {
         player.switchSprite('idle')}
 
+    //jumping
     if (player.velocity.y < 0){
         player.switchSprite('jump')
+    } else if (player.velocity.y > 0){
+        player.switchSprite('fall')
     }
 
     //Enemy movement
     enemy.velocity.x = 0
     if (keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft'){
-        enemy.velocity.x = -3
+        enemy.velocity.x = -5
+        enemy.switchSprite('run')
     } else if (keys.ArrowRight.pressed && enemy.lastKey === 'ArrowRight'){
-        enemy.velocity.x = 3
-    } 
+        enemy.velocity.x = 5
+        enemy.switchSprite('run')
+    } else {
+        enemy.switchSprite('idle')}
+
+    //jumping
+    if (enemy.velocity.y < 0){
+        enemy.switchSprite('jump')
+    } else if (enemy.velocity.y > 0){
+        enemy.switchSprite('fall')
+    }
 
     //Detect collision
     if (rectangularCollision({rectangle1:player,rectangle2:enemy}) &&
-        player.isAttacking
+        player.isAttacking && player.framesCurrent === 4
     ){
         player.isAttacking = false
         enemy.health -= 20
         document.querySelector('#enemyHealth').style.width = enemy.health + '%'
 
     }
+    //miss
+    if (player.isAttacking && player.framesCurrent === 4){
+        player.isAttacking = false
+    }
 
     if (rectangularCollision({rectangle1:enemy,rectangle2:player}) &&
-        enemy.isAttacking
+        enemy.isAttacking && enemy.framesCurrent === 2
     ){
         enemy.isAttacking = false
         player.health -= 20
         document.querySelector('#playerHealth').style.width = player.health + '%'
 
+    }
+    //miss
+    if (enemy.isAttacking && enemy.framesCurrent === 2){
+        enemy.isAttacking = false
     }
     //end game
     if (player.health <= 0 || enemy.health <= 0){
