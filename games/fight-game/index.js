@@ -166,6 +166,8 @@ function animate(){
     background.update()
     girl.update()
     girl2.update()
+    c.fillStyle = 'rgba(255,255,255,0.0)'
+    c.fillRect(0,0,canvas.width,canvas.height)
     player.update()
     enemy.update()
     
@@ -212,7 +214,9 @@ function animate(){
     ){
         enemy.takeHit()
         player.isAttacking = false
-        document.querySelector('#enemyHealth').style.width = enemy.health + '%'
+        gsap.to('#enemyHealth', {
+            width: enemy.health + '%'
+          })
 
     }
     //miss
@@ -225,7 +229,9 @@ function animate(){
     ){
         player.takeHit()
         enemy.isAttacking = false
-        document.querySelector('#playerHealth').style.width = player.health + '%'
+        gsap.to('#playerHealth', {
+            width: player.health + '%'
+          })
 
     }
     //miss
@@ -237,11 +243,11 @@ function animate(){
         clearTimeout(timerId)
         document.querySelector('#displayText').style.display = 'flex'
         if (player.health === enemy.health){
-            document.querySelector('#displayText').innerHTML = 'Tie'}
+            document.querySelector('#displayText').innerHTML = 'Its a Tie'}
             else if (player.health > enemy.health){
-                document.querySelector('#displayText').innerHTML = 'Player Wins'} 
+                document.querySelector('#displayText').innerHTML = 'Player 1 Wins'} 
                 else if (player.health < enemy.health){
-                document.querySelector('#displayText').innerHTML = 'Enemy Wins'}
+                document.querySelector('#displayText').innerHTML = 'Player 2 Wins'}
     }
 }
 animate()
