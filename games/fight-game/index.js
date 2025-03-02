@@ -72,6 +72,14 @@ sprites: {
         imageSrc: './img/Player1/Run.png',
         framesMax: 8
     },
+    takeHit: {
+        imageSrc: './img/Player1/Take hit - white silhouette.png',
+        framesMax: 4
+    },
+    death: {
+        imageSrc: './img/Player1/Death.png',
+        framesMax: 6
+    }
 },
 attackBox: {
     offset: {x:100,y:50},
@@ -112,6 +120,14 @@ sprites: {
     run: {
         imageSrc: './img/Player2/Run.png',
         framesMax: 8
+    },
+    takeHit: {
+        imageSrc: './img/Player2/Take hit.png',
+        framesMax: 3
+    },
+    death: {
+        imageSrc: './img/Player2/Death.png',
+        framesMax: 7
     },
 },
 attackBox: {
@@ -194,8 +210,8 @@ function animate(){
     if (rectangularCollision({rectangle1:player,rectangle2:enemy}) &&
         player.isAttacking && player.framesCurrent === 4
     ){
+        enemy.takeHit()
         player.isAttacking = false
-        enemy.health -= 20
         document.querySelector('#enemyHealth').style.width = enemy.health + '%'
 
     }
@@ -207,8 +223,8 @@ function animate(){
     if (rectangularCollision({rectangle1:enemy,rectangle2:player}) &&
         enemy.isAttacking && enemy.framesCurrent === 2
     ){
+        player.takeHit()
         enemy.isAttacking = false
-        player.health -= 20
         document.querySelector('#playerHealth').style.width = player.health + '%'
 
     }
@@ -231,7 +247,7 @@ function animate(){
 animate()
 
 window.addEventListener('keydown', (event) =>{
-    
+    if (!player.dead){
     switch(event.key){
         case 'd':
             keys.d.pressed = true
@@ -247,6 +263,10 @@ window.addEventListener('keydown', (event) =>{
         case ' ':
             player.attack()
         break
+    }
+}
+    if (!enemy.dead){
+    switch(event.key){
 
         case 'ArrowRight':
             keys.ArrowRight.pressed = true
@@ -263,6 +283,7 @@ window.addEventListener('keydown', (event) =>{
             enemy.attack()
         break
     }
+}
 })
 
 window.addEventListener('keyup', (event) =>{
