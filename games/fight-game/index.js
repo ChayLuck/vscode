@@ -156,6 +156,152 @@ const keys = {
 
 decreaseTimer()
 
+// Add this to your index.js file, just before the animate function
+
+// AI configuration
+const ai = {
+    active: false, // Start with AI disabled
+    difficulty: 'medium', // 'easy', 'medium', 'hard'
+    thinkingTime: 0,
+    lastThink: 0,
+    distancePreference: {
+      min: 100,
+      max: 200
+    },
+    attackCooldown: 0,
+    jumpCooldown: 0,
+    randomMoveCooldown: 0,
+    state: 'idle' // 'idle', 'approach', 'retreat', 'attack', 'dodge'
+  };
+  
+  // AI status display
+  function updateAIStatusDisplay() {
+    // Check if AI status element exists, if not create it
+    let aiStatus = document.getElementById('aiStatus');
+    if (!aiStatus) {
+      aiStatus = document.createElement('div');
+      aiStatus.id = 'aiStatus';
+      aiStatus.style.position = 'absolute';
+      aiStatus.style.top = '10px';
+      aiStatus.style.left = '10px';
+      aiStatus.style.color = 'white';
+      aiStatus.style.fontFamily = '"Press Start 2P", system-ui';
+      aiStatus.style.fontSize = '10px';
+      document.querySelector('body').appendChild(aiStatus);
+    }
+    
+    // Update the text
+    aiStatus.innerHTML = `AI: ${ai.active ? 'ON (' + ai.difficulty + ')' : 'OFF'}`;
+  }
+  
+  // AI behavior function
+  function updateAI() {
+    if (!ai.active || enemy.dead) return;
+    
+    // AI thinking timing
+    const now = Date.now();
+    if (now - ai.lastThink < ai.thinkingTime) return;
+    ai.lastThink = now;
+    
+    // Calculate distance between players
+    const distanceX = player.position.x - enemy.position.x;
+    const absoluteDistanceX = Math.abs(distanceX);
+    const playerIsLeft = distanceX < 0;
+    
+    // Decrease cooldowns
+    if (ai.attackCooldown > 0) ai.attackCooldown--;
+    if (ai.jumpCooldown > 0) ai.jumpCooldown--;
+    if (ai.randomMoveCooldown > 0) ai.randomMoveCooldown--;
+    
+    // Set difficulty parameters
+    switch (ai.difficulty) {
+      case 'easy':
+        ai.thinkingTime = 500;
+        ai.attackCooldown = Math.max(ai.attackCooldown, 0);
+        ai.distancePreference = { min: 150, max: 250 };
+        break;
+      case 'medium':
+        ai.thinkingTime = 200;
+        ai.attackCooldown = Math.max(ai.attackCooldown, 0);
+        ai.distancePreference = { min: 100, max: 200 };
+        break;
+      case 'hard':
+        ai.thinkingTime = 100;
+        ai.attackCooldown = Math.max(ai.attackCooldown, 0);
+        ai.distancePreference = { min: 80, max: 160 };
+        break;
+    }
+    
+    // Reset movement
+    keys.ArrowLeft.pressed = false;
+    keys.ArrowRight.pressed = false;
+    
+    // Determine AI state
+    if (ai.randomMoveCooldown <= 0) {
+      const randomAction = Math.random();
+      if (randomAction < 0.6) {
+        ai.state = absoluteDistanceX < ai.distancePreference.min ? 'retreat' : 
+                  (absoluteDistanceX > ai.distancePreference.max ? 'approach' : 'idle');
+      } else if (randomAction < 0.8) {
+        ai.state = 'attack';
+      } else {
+        ai.state = 'dodge';
+      }
+      ai.randomMoveCooldown = 30 + Math.floor(Math.random() * 30);
+    }
+    
+    // Execute based on state
+    switch (ai.state) {
+      case 'approach':
+        if (playerIsLeft) {
+          keys.ArrowLeft.pressed = true;
+          enemy.lastKey = 'ArrowLeft';
+        } else {
+          keys.ArrowRight.pressed = true;
+          enemy.lastKey = 'ArrowRight';
+        }
+        break;
+      
+      case 'retreat':
+        if (playerIsLeft) {
+          keys.ArrowRight.pressed = true;
+          enemy.lastKey = 'ArrowRight';
+        } else {
+          keys.ArrowLeft.pressed = true;
+          enemy.lastKey = 'ArrowLeft';
+        }
+        break;
+      
+      case 'attack':
+        // Attack if in range and attack is not on cooldown
+        if (absoluteDistanceX < 200 && ai.attackCooldown <= 0) {
+          enemy.attack();
+          ai.attackCooldown = 1; // Set cooldown after attack
+        }
+        break;
+      
+      case 'dodge':
+        // Jump to dodge if not already in air
+        if (enemy.position.y >= 330 && ai.jumpCooldown <= 0) {
+          enemy.velocity.y = -20;
+          ai.jumpCooldown = 1;
+        }
+        break;
+    }
+    
+    // Random chance to attack if close regardless of state
+    if (absoluteDistanceX < 150 && ai.attackCooldown <= 0 && Math.random() < 0.1) {
+      enemy.attack();
+      ai.attackCooldown = 1;
+    }
+    
+    // Random chance to jump if player is attacking
+    if (player.isAttacking && enemy.position.y >= 330 && ai.jumpCooldown <= 0 && Math.random() < 0.3) {
+      enemy.velocity.y = -20;
+      ai.jumpCooldown = 1;
+    }
+  }
+
 //let lastKey ama gerekmiyor artık
 
 //animation loop - sürekli frame talebi
@@ -168,6 +314,13 @@ function animate(){
     girl2.update()
     c.fillStyle = 'rgba(255,255,255,0.0)'
     c.fillRect(0,0,canvas.width,canvas.height)
+    // Update AI status display
+    updateAIStatusDisplay()
+    
+    // Update AI only if active
+    if (ai.active) {
+        updateAI()
+    }
     player.update()
     enemy.update()
     
@@ -251,49 +404,76 @@ function animate(){
     }
 }
 animate()
-
+// Modify your event listeners to add the AI toggle option
 window.addEventListener('keydown', (event) =>{
     if (!player.dead){
+        switch(event.key){
+            case 'd':
+                keys.d.pressed = true
+                player.lastKey = 'd'
+            break
+            case 'a':
+                keys.a.pressed = true
+                player.lastKey = 'a'
+            break
+            case 'w':
+                player.velocity.y = -20
+            break
+            case ' ':
+                player.attack()
+            break
+        }
+    }
+    
+    // AI controls only work when AI is off
+    if (!ai.active && !enemy.dead){
+        switch(event.key){
+            case 'ArrowRight':
+                keys.ArrowRight.pressed = true
+                enemy.lastKey = 'ArrowRight'
+            break
+            case 'ArrowLeft':
+                keys.ArrowLeft.pressed = true
+                enemy.lastKey = 'ArrowLeft'
+            break
+            case 'ArrowUp':
+                enemy.velocity.y = -20
+            break
+            case 'ArrowDown':
+                enemy.attack()
+            break
+        }
+    }
+    
+    // AI toggle and difficulty controls
     switch(event.key){
-        case 'd':
-            keys.d.pressed = true
-            player.lastKey = 'd'
+        case 'o':
+        case 'O':
+            // Toggle AI on/off
+            ai.active = !ai.active;
+            console.log(`AI ${ai.active ? 'activated' : 'deactivated'}`);
+            // Reset enemy controls when turning AI on
+            if (ai.active) {
+                keys.ArrowLeft.pressed = false;
+                keys.ArrowRight.pressed = false;
+            }
         break
-        case 'a':
-            keys.a.pressed = true
-            player.lastKey = 'a'
+        case '1':
+            ai.difficulty = 'easy';
+            console.log('AI difficulty set to easy');
         break
-        case 'w':
-            player.velocity.y = -20
+        case '2':
+            ai.difficulty = 'medium';
+            console.log('AI difficulty set to medium');
         break
-        case ' ':
-            player.attack()
+        case '3':
+            ai.difficulty = 'hard';
+            console.log('AI difficulty set to hard');
         break
     }
-}
-    if (!enemy.dead){
-    switch(event.key){
-
-        case 'ArrowRight':
-            keys.ArrowRight.pressed = true
-            enemy.lastKey = 'ArrowRight'
-        break
-        case 'ArrowLeft':
-            keys.ArrowLeft.pressed = true
-            enemy.lastKey = 'ArrowLeft'
-        break
-        case 'ArrowUp':
-            enemy.velocity.y = -20
-        break
-        case 'ArrowDown':
-            enemy.attack()
-        break
-    }
-}
 })
 
 window.addEventListener('keyup', (event) =>{
-    
     switch(event.key){
         case 'd':
             keys.d.pressed = false
@@ -301,7 +481,6 @@ window.addEventListener('keyup', (event) =>{
         case 'a':
             keys.a.pressed = false
         break
-
         case 'ArrowRight':
             keys.ArrowRight.pressed = false
         break
