@@ -138,6 +138,14 @@ attackBox: {
 
 }) 
 
+const doors = [ new Sprite({
+    position: {x:900,y:350},
+    imageSrc: './img/doorOpen.png',
+    framesMax: 5,
+    loop: false,
+    autoplay: false,
+})]
+
 const keys = {
     a: {
         pressed : false
@@ -312,6 +320,11 @@ function animate(){
     background.update()
     girl.update()
     girl2.update()
+
+    doors.forEach(door => {
+        door.update()
+    })
+
     c.fillStyle = 'rgba(255,255,255,0.0)'
     c.fillRect(0,0,canvas.width,canvas.height)
     // Update AI status display
@@ -323,7 +336,7 @@ function animate(){
     }
     player.update()
     enemy.update()
-    
+
     //Player movement
     player.velocity.x = 0
 
@@ -417,6 +430,17 @@ window.addEventListener('keydown', (event) =>{
                 player.lastKey = 'a'
             break
             case 'w':
+                for (let i = 0; i < doors.length; i++){
+                    const door = doors[i]
+                    if (player.position.x + player.width >= door.position.x &&
+                        player.position.x <= door.position.x + door.width &&
+                        player.position.y + player.height >= door.position.y &&
+                        player.position.y <= door.position.y + door.height){
+                        if (enemy.dead)
+                        doors[i].play() 
+                        return
+                    }
+                }
                 player.velocity.y = -20
             break
             case ' ':

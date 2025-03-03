@@ -8,7 +8,9 @@ class Sprite {
         scale = 1,
         framesMax=1,
         framesMax2=1,
-        offset = {x:0,y:0}
+        offset = {x:0,y:0},
+        loop = true,
+        autoplay = true
     }) {  
         this.position = position
         this.height = 50
@@ -22,6 +24,8 @@ class Sprite {
         this.framesElapsed = 0
         this.framesHold = 15
         this.offset = offset
+        this.loop = loop
+        this.autoplay = autoplay
     }
 
     draw(){
@@ -38,13 +42,18 @@ class Sprite {
         )
     }
 
+    play(){
+        this.autoplay = true
+    }
+
     animateFrames() {
+        if(!this.autoplay) return
         this.framesElapsed++
     
         if (this.framesElapsed % this.framesHold === 0) {
           if (this.framesCurrent < this.framesMax - 1) {
             this.framesCurrent++
-          } else {
+          } else if (this.loop){
             this.framesCurrent = 0
           }
         }
