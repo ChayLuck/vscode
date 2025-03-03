@@ -103,6 +103,21 @@ const enemy = new Fighter({
     },
 }) 
 
+// Function to reset everything when starting a new level
+function resetUI() {
+    // Reset health display
+    gsap.to('#playerHealth', {
+      width: '100%'
+    });
+    gsap.to('#enemyHealth', {
+      width: '100%'
+    });
+    
+    // Reset timer display
+    timer = 60;
+    document.querySelector('#timer').innerHTML = timer;
+  }
+
 let currentScene = 1;
 
 let level = 1
@@ -112,6 +127,7 @@ let levels = {
 
     currentScene = 1;
     gravity = 0.7
+    resetUI();
 
 //Objeleri konumlarla oluşturduk
 
@@ -158,6 +174,8 @@ let levels = {
 
 currentScene = 2;
 gravity = 0.7
+
+resetUI();
 
 player.position = {x:0,y:0}
 
