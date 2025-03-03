@@ -420,6 +420,7 @@ animate()
 // Modify your event listeners to add the AI toggle option
 window.addEventListener('keydown', (event) =>{
     if (!player.dead){
+        if (player.preventInput) return
         switch(event.key){
             case 'd':
                 keys.d.pressed = true
@@ -436,8 +437,12 @@ window.addEventListener('keydown', (event) =>{
                         player.position.x <= door.position.x + door.width &&
                         player.position.y + player.height >= door.position.y &&
                         player.position.y <= door.position.y + door.height){
-                        if (enemy.dead)
+                        if (enemy.dead){
+                        player.velocity.x = 0
+                        player.velocity.y = 0
+                        player.preventInput = true
                         doors[i].play() 
+                        }
                         return
                     }
                 }
