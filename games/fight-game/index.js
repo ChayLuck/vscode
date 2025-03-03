@@ -116,9 +116,88 @@ function resetUI() {
     // Reset timer display
     timer = 60;
     document.querySelector('#timer').innerHTML = timer;
+    
+    // Hide any game-end text
+    document.querySelector('#displayText').style.display = 'none';
+    document.querySelector('#displayText').innerHTML = '';
+    
+    // Clear timer if it exists
+    if (timerId) {
+      clearTimeout(timerId);
+    }
   }
 
 let currentScene = 1;
+
+// Level manager
+const levelManager = {
+    currentLevel: 1,
+    maxLevel: 2, // Update this as you add more levels
+    
+    loadLevel: function(levelNumber) {
+      if (levelNumber > this.maxLevel) {
+        this.gameComplete();
+        return;
+      }
+      
+      // Reset the game state
+      this.resetGameState();
+      
+      // Initialize the new level
+      if (levels[levelNumber] && levels[levelNumber].init) {
+        levels[levelNumber].init();
+      }
+      
+      // Start the timer for the new level
+      decreaseTimer();
+    },
+    
+    resetGameState: function() {
+      // Reset UI elements
+      resetUI();
+      
+      // Reset player and enemy
+      player.dead = false;
+      player.health = 100;
+      enemy.dead = false;
+      enemy.health = 100;
+      
+      // Reset player and enemy positions
+      player.position = { x: 100, y: 0 };
+      player.velocity = { x: 0, y: 0 };
+      
+      enemy.position = { x: 400, y: 100 };
+      enemy.velocity = { x: 0, y: 0 };
+      
+      // Reset AI state if it's active
+      if (ai.active) {
+        ai.state = 'idle';
+        ai.attackCooldown = 0;
+        ai.jumpCooldown = 0;
+        ai.randomMoveCooldown = 0;
+      }
+      
+      // Reset keys
+      Object.keys(keys).forEach(key => {
+        keys[key].pressed = false;
+      });
+      
+      // Set initial sprites
+      player.switchSprite('idle');
+      enemy.switchSprite('idle');
+    },
+    
+    nextLevel: function() {
+      this.currentLevel++;
+      this.loadLevel(this.currentLevel);
+    },
+    
+    gameComplete: function() {
+      // Handle game completion
+      document.querySelector('#displayText').style.display = 'flex';
+      document.querySelector('#displayText').innerHTML = 'Game Complete!';
+    }
+  };
 
 let level = 1
 let levels = {
@@ -127,7 +206,6 @@ let levels = {
 
     currentScene = 1;
     gravity = 0.7
-    resetUI();
 
 //Objeleri konumlarla oluşturduk
 
@@ -138,6 +216,21 @@ let levels = {
     imageSrc: './img/Battleground2.png',
     scale: 0.55
 })
+      
+      // Update image references
+      for (const sprite in player.sprites) {
+        player.sprites[sprite].image = new Image();
+        player.sprites[sprite].image.src = player.sprites[sprite].imageSrc;
+      }
+      
+      for (const sprite in enemy.sprites) {
+        enemy.sprites[sprite].image = new Image();
+        enemy.sprites[sprite].image.src = enemy.sprites[sprite].imageSrc;
+      }
+      
+      // Reset sprites
+      player.switchSprite('idle');
+      enemy.switchSprite('idle');
 
     girl = new Sprite({
     position: {x:230,y:200},
@@ -175,9 +268,26 @@ let levels = {
 currentScene = 2;
 gravity = 0.7
 
-resetUI();
-
 player.position = {x:0,y:0}
+
+player.imageSrc = './img/Player1/Idle.png';
+
+enemy.imageSrc = './img/Player2/Idle.png';
+
+// Update image references again
+for (const sprite in player.sprites) {
+    player.sprites[sprite].image = new Image();
+    player.sprites[sprite].image.src = player.sprites[sprite].imageSrc;
+  }
+  
+  for (const sprite in enemy.sprites) {
+    enemy.sprites[sprite].image = new Image();
+    enemy.sprites[sprite].image.src = enemy.sprites[sprite].imageSrc;
+  }
+
+// Reset sprites
+player.switchSprite('idle');
+enemy.switchSprite('idle');
 
 //Objeleri konumlarla oluşturduk
 
@@ -382,32 +492,38 @@ function animate(){
     window.requestAnimationFrame(animate)
     c.fillStyle = 'black' //arkayı her update öncesi sil
     c.fillRect(0,0,canvas.width,canvas.height)
-    background.update()
 
-    if(currentScene === 1){
-    girl.update()
-    girl2.update()
+    if (background) {
+        background.update();
+      }
 
-    doors.forEach(door => {
-        door.update()
-    })
+    if (currentScene === 1) {
+     if (girl) girl.update();
+     if (girl2) girl2.update();
+    }
+
+    if (doors && doors.length > 0) {
+        doors.forEach(door => {
+        door.update();
+      });
     }
     
     c.fillStyle = 'rgba(255,255,255,0.0)'
     c.fillRect(0,0,canvas.width,canvas.height)
 
-    player.update()
+    if (player) player.update();
 
     // Update AI status display
     updateAIStatusDisplay()
     
     // Update AI only if active
-    if (ai.active) {
-        updateAI()
+    if (ai && ai.active) {
+        updateAI();
     }
-    if(currentScene === 1){
-    enemy.update()
-    }
+    
+    if (enemy && (currentScene === 1 || currentScene === 2)) {
+    enemy.update();
+  }
 
     c.save()
     c.globalAlpha = overlay.opacity
@@ -416,6 +532,7 @@ function animate(){
     c.restore()
 
     //Player movement
+    if (player) {
     player.velocity.x = 0
 
     if (keys.a.pressed && player.lastKey === 'a'){
@@ -433,8 +550,10 @@ function animate(){
     } else if (player.velocity.y > 0){
         player.switchSprite('fall')
     }
+}
 
     //Enemy movement
+    if (enemy) {
     enemy.velocity.x = 0
     if (keys.ArrowLeft.pressed && enemy.lastKey === 'ArrowLeft'){
         enemy.velocity.x = -5
@@ -451,49 +570,50 @@ function animate(){
     } else if (enemy.velocity.y > 0){
         enemy.switchSprite('fall')
     }
+}
 
     //Detect collision
-    if (rectangularCollision({rectangle1:player,rectangle2:enemy}) &&
-        player.isAttacking && player.framesCurrent === 2
-    ){
-        enemy.takeHit()
-        player.isAttacking = false
-        gsap.to('#enemyHealth', {
-            width: enemy.health + '%'
-          })
-
-    }
+    if (player && enemy && rectangularCollision({ rectangle1: player, rectangle2: enemy }) && 
+      player.isAttacking && player.framesCurrent === 2) {
+    enemy.takeHit();
+    player.isAttacking = false;
+    gsap.to('#enemyHealth', {
+      width: enemy.health + '%'
+    });
+  }
     //miss
-    if (player.isAttacking && player.framesCurrent === 2){
-        player.isAttacking = false
-    }
+    if (player && player.isAttacking && player.framesCurrent === 2) {
+        player.isAttacking = false;
+      }
 
-    if (rectangularCollision({rectangle1:enemy,rectangle2:player}) &&
-        enemy.isAttacking && enemy.framesCurrent === 2
-    ){
-        player.takeHit()
-        enemy.isAttacking = false
-        gsap.to('#playerHealth', {
-            width: player.health + '%'
-          })
-
-    }
+      if (player && enemy && rectangularCollision({ rectangle1: enemy, rectangle2: player }) && 
+      enemy.isAttacking && enemy.framesCurrent === 2) {
+    player.takeHit();
+    enemy.isAttacking = false;
+    gsap.to('#playerHealth', {
+      width: player.health + '%'
+    });
+  }
     //miss
-    if (enemy.isAttacking && enemy.framesCurrent === 2){
-        enemy.isAttacking = false
-    }
+    if (enemy && enemy.isAttacking && enemy.framesCurrent === 2) {
+        enemy.isAttacking = false;
+      }
     //end game
-    if (player.health <= 0 || enemy.health <= 0){
-        clearTimeout(timerId)
-        document.querySelector('#displayText').style.display = 'flex'
-        if (player.health === enemy.health){
-            document.querySelector('#displayText').innerHTML = 'Its a Tie'}
-            else if (player.health > enemy.health){
-                document.querySelector('#displayText').innerHTML = 'Player 1 Wins'} 
-                else if (player.health < enemy.health){
-                document.querySelector('#displayText').innerHTML = 'Player 2 Wins'}
+    if (player && enemy && (player.health <= 0 || enemy.health <= 0)) {
+        clearTimeout(timerId);
+        document.querySelector('#displayText').style.display = 'flex';
+        if (player.health === enemy.health) {
+          document.querySelector('#displayText').innerHTML = 'It\'s a Tie';
+        } else if (player.health > enemy.health) {
+          document.querySelector('#displayText').innerHTML = 'Player 1 Wins';
+        } else if (player.health < enemy.health) {
+          document.querySelector('#displayText').innerHTML = 'Player 2 Wins';
+        }
     }
 }
+
+levelManager.loadLevel(1);
+
 animate()
 // Modify your event listeners to add the AI toggle option
 window.addEventListener('keydown', (event) =>{
@@ -508,29 +628,51 @@ window.addEventListener('keydown', (event) =>{
                 keys.a.pressed = true
                 player.lastKey = 'a'
             break
-            case 'w':
-                for (let i = 0; i < doors.length; i++){
-                    const door = doors[i]
-                    if (player.position.x + player.width >= door.position.x &&
-                        player.position.x <= door.position.x + door.width &&
-                        player.position.y + player.height >= door.position.y &&
-                        player.position.y <= door.position.y + door.height){
-                        if (enemy.dead){
-                        player.velocity.x = 0
-                        player.velocity.y = 0
-                        player.preventInput = true
-                        doors[i].play()
-                        gsap.to(overlay, {opacity: 1,})
-                        level++
-                        levels[level].init()
-                        gsap.to(overlay, {opacity: 0,})
-                        player.preventInput = false
-                        }
-                        return
-                    }
+            // Replace your current door interaction code with this in your keydown event handler
+case 'w':
+    for (let i = 0; i < doors.length; i++) {
+      const door = doors[i];
+      if (
+        player.position.x + player.width >= door.position.x &&
+        player.position.x <= door.position.x + door.width &&
+        player.position.y + player.height >= door.position.y &&
+        player.position.y <= door.position.y + door.height
+      ) {
+        // Only allow level transition if enemy is defeated
+        if (enemy.dead) {
+          player.velocity.x = 0;
+          player.velocity.y = 0;
+          player.preventInput = true;
+          
+          // Play door animation
+          doors[i].play();
+          
+          // Fade out
+          gsap.to(overlay, {
+            opacity: 1,
+            duration: 0.5,
+            onComplete: () => {
+              // Load next level
+              levelManager.nextLevel();
+              
+              // Fade back in
+              gsap.to(overlay, {
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => {
+                  player.preventInput = false;
                 }
-                player.velocity.y = -20
-            break
+              });
+            }
+          });
+          
+          return;
+        }
+      }
+    }
+    // If not at a door, jump
+    player.velocity.y = -20;
+    break;
             case ' ':
                 player.attack()
             break
