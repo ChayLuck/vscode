@@ -54,7 +54,7 @@ sprites: {
     },
     attack1: {
         imageSrc: './img/Player1/Attack1.png',
-        framesMax: 6
+        framesMax: 4
     },
     die: {
         imageSrc: './img/Player1/Die.png',
@@ -134,7 +134,7 @@ attackBox: {
     offset: {x:-170,y:50},
     width: 170,
     height: 50
-}
+},
 
 }) 
 
