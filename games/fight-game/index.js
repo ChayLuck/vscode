@@ -363,7 +363,7 @@ function animate(){
 
     //Detect collision
     if (rectangularCollision({rectangle1:player,rectangle2:enemy}) &&
-        player.isAttacking && player.framesCurrent === 4
+        player.isAttacking && player.framesCurrent === 2
     ){
         enemy.takeHit()
         player.isAttacking = false
@@ -373,7 +373,7 @@ function animate(){
 
     }
     //miss
-    if (player.isAttacking && player.framesCurrent === 4){
+    if (player.isAttacking && player.framesCurrent === 2){
         player.isAttacking = false
     }
 
