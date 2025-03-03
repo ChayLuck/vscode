@@ -5,14 +5,114 @@ const c = canvas.getContext('2d')
 canvas.width = 1024
 canvas.height = 576
 
-//çalışılacak alan siyah
-c.fillRect(0,0,canvas.width,canvas.height)
+let gravity
+const player = new Fighter({
+    position: {x:0,y:0},
+    velocity: {x:0,y:0},
+    offset: {x:0,y:0},
+    imageSrc: './img/Player1/Idle.png',
+    framesMax: 8,
+    scale: 2.5,
+    offset: {x:215,y:157},
+    sprites: {
+        idle: {
+            imageSrc: './img/Player1/Idle.png',
+            framesMax: 8
+        },
+        attack1: {
+            imageSrc: './img/Player1/Attack1.png',
+            framesMax: 4
+        },
+        die: {
+            imageSrc: './img/Player1/Die.png',
+            framesMax: 8
+        },
+        jump: {
+            imageSrc: './img/Player1/Jump.png',
+            framesMax: 2
+        },
+        fall: {
+            imageSrc: './img/Player1/Fall.png',
+            framesMax: 2
+        },
+        run: {
+            imageSrc: './img/Player1/Run.png',
+            framesMax: 8
+        },
+        takeHit: {
+            imageSrc: './img/Player1/Take hit - white silhouette.png',
+            framesMax: 4
+        },
+        death: {
+            imageSrc: './img/Player1/Death.png',
+            framesMax: 6
+        }
+    },
+    attackBox: {
+        offset: {x:100,y:50},
+        width: 160,
+        height: 50
+    }
+})
+const enemy = new Fighter({
+    position: {x:400,y:100},
+    velocity: {x:0,y:0},
+    offset: {x:-50,y:0},
+    imageSrc: './img/Player2/Idle.png',
+    framesMax: 4,
+    scale: 2.5,
+    offset: {x:215,y:167},
+    sprites: {
+        idle: {
+            imageSrc: './img/Player2/Idle.png',
+            framesMax: 4
+        },
+        attack1: {
+            imageSrc: './img/Player2/Attack1.png',
+            framesMax: 4
+        },
+        die: {
+            imageSrc: './img/Player2/Die.png',
+            framesMax: 8
+        },
+        jump: {
+            imageSrc: './img/Player2/Jump.png',
+            framesMax: 2
+        },
+        fall: {
+            imageSrc: './img/Player2/Fall.png',
+            framesMax: 2
+        },
+        run: {
+            imageSrc: './img/Player2/Run.png',
+            framesMax: 8
+        },
+        takeHit: {
+            imageSrc: './img/Player2/Take hit.png',
+            framesMax: 3
+        },
+        death: {
+            imageSrc: './img/Player2/Death.png',
+            framesMax: 7
+        },
+    },
+    attackBox: {
+        offset: {x:-170,y:50},
+        width: 170,
+        height: 50
+    },
+}) 
 
-const gravity = 0.7
+let level = 1
+let levels = {
+    1: {
+        init: () => {
+
+    gravity = 0.7
 
 //Objeleri konumlarla oluşturduk
 
-const background = new Sprite({
+    background = new Sprite({
     position: {x:0,y:0},
     width: canvas.width,
     height: canvas.height,
@@ -20,7 +120,7 @@ const background = new Sprite({
     scale: 0.55
 })
 
-const girl = new Sprite({
+    girl = new Sprite({
     position: {x:230,y:200},
     width: canvas.width,
     height: canvas.height,
@@ -29,7 +129,7 @@ const girl = new Sprite({
     framesMax2: 4,
     scale: 1.25
 })
-const girl2 = new Sprite({
+    girl2 = new Sprite({
     position: {x:765,y:200},
     width: canvas.width,
     height: canvas.height,
@@ -39,112 +139,49 @@ const girl2 = new Sprite({
     scale: 1.25
 })
 
-const player = new Fighter({
-position: {x:0,y:0},
-velocity: {x:0,y:0},
-offset: {x:0,y:0},
-imageSrc: './img/Player1/Idle.png',
-framesMax: 8,
-scale: 2.5,
-offset: {x:215,y:157},
-sprites: {
-    idle: {
-        imageSrc: './img/Player1/Idle.png',
-        framesMax: 8
-    },
-    attack1: {
-        imageSrc: './img/Player1/Attack1.png',
-        framesMax: 4
-    },
-    die: {
-        imageSrc: './img/Player1/Die.png',
-        framesMax: 8
-    },
-    jump: {
-        imageSrc: './img/Player1/Jump.png',
-        framesMax: 2
-    },
-    fall: {
-        imageSrc: './img/Player1/Fall.png',
-        framesMax: 2
-    },
-    run: {
-        imageSrc: './img/Player1/Run.png',
-        framesMax: 8
-    },
-    takeHit: {
-        imageSrc: './img/Player1/Take hit - white silhouette.png',
-        framesMax: 4
-    },
-    death: {
-        imageSrc: './img/Player1/Death.png',
-        framesMax: 6
-    }
-},
-attackBox: {
-    offset: {x:100,y:50},
-    width: 160,
-    height: 50
-}
-}) 
-
-const enemy = new Fighter({
-position: {x:400,y:100},
-velocity: {x:0,y:0},
-offset: {x:-50,y:0},
-imageSrc: './img/Player2/Idle.png',
-framesMax: 4,
-scale: 2.5,
-offset: {x:215,y:167},
-sprites: {
-    idle: {
-        imageSrc: './img/Player2/Idle.png',
-        framesMax: 4
-    },
-    attack1: {
-        imageSrc: './img/Player2/Attack1.png',
-        framesMax: 4
-    },
-    die: {
-        imageSrc: './img/Player2/Die.png',
-        framesMax: 8
-    },
-    jump: {
-        imageSrc: './img/Player2/Jump.png',
-        framesMax: 2
-    },
-    fall: {
-        imageSrc: './img/Player2/Fall.png',
-        framesMax: 2
-    },
-    run: {
-        imageSrc: './img/Player2/Run.png',
-        framesMax: 8
-    },
-    takeHit: {
-        imageSrc: './img/Player2/Take hit.png',
-        framesMax: 3
-    },
-    death: {
-        imageSrc: './img/Player2/Death.png',
-        framesMax: 7
-    },
-},
-attackBox: {
-    offset: {x:-170,y:50},
-    width: 170,
-    height: 50
-},
-
-}) 
-
-const doors = [ new Sprite({
+    doors = [ new Sprite({
     position: {x:900,y:350},
     imageSrc: './img/doorOpen.png',
     framesMax: 5,
     loop: false,
     autoplay: false,
 })]
+
+}
+},
+
+2: {
+    init: () => {
+
+gravity = 0.7
+
+player.position = {x:0,y:0}
+
+//Objeleri konumlarla oluşturduk
+
+background = new Sprite({
+position: {x:0,y:0},
+width: canvas.width,
+height: canvas.height,
+imageSrc: './img/24.png',
+scale: 0.55
+})
+
+doors = [ new Sprite({
+position: {x:900,y:350},
+imageSrc: './img/doorOpen.png',
+framesMax: 5,
+loop: false,
+autoplay: false,
+})]
+
+}
+}
+
+}
+
+//çalışılacak alan siyah
+c.fillRect(0,0,canvas.width,canvas.height) 
 
 const keys = {
     a: {
@@ -310,6 +347,12 @@ const ai = {
     }
   }
 
+const overlay = {
+    opacity: 0
+}
+
+levels[level].init()
+
 //let lastKey ama gerekmiyor artık
 
 //animation loop - sürekli frame talebi
@@ -318,15 +361,22 @@ function animate(){
     c.fillStyle = 'black' //arkayı her update öncesi sil
     c.fillRect(0,0,canvas.width,canvas.height)
     background.update()
+    player.gameScene1 = true
+
+    if(player.gameScene1=true){
     girl.update()
     girl2.update()
 
     doors.forEach(door => {
         door.update()
     })
-
+    }
+    
     c.fillStyle = 'rgba(255,255,255,0.0)'
     c.fillRect(0,0,canvas.width,canvas.height)
+
+
+
     // Update AI status display
     updateAIStatusDisplay()
     
@@ -336,6 +386,12 @@ function animate(){
     }
     player.update()
     enemy.update()
+
+    c.save()
+    c.globalAlpha = overlay.opacity
+    c.fillStyle = 'black'
+    c.fillRect(0,0,canvas.width,canvas.height)
+    c.restore()
 
     //Player movement
     player.velocity.x = 0
@@ -441,7 +497,13 @@ window.addEventListener('keydown', (event) =>{
                         player.velocity.x = 0
                         player.velocity.y = 0
                         player.preventInput = true
-                        doors[i].play() 
+                        doors[i].play()
+                        gsap.to(overlay, {opacity: 1,})
+                        level++
+                        levels[level].init()
+                        gsap.to(overlay, {opacity: 0,})
+                        player.preventInput = false
+                        player.gameScene1 = false
                         }
                         return
                     }
