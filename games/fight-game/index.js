@@ -127,6 +127,28 @@ function resetUI() {
     }
   }
 
+function updateUIForLevel() {
+    // Show or hide enemy health bar based on current level
+    const enemyHealthBar = document.querySelector('div:has(> #enemyHealth)');
+    if (enemyHealthBar) {
+        if (currentScene === 2) {
+            enemyHealthBar.style.display = 'none';
+        } else {
+            enemyHealthBar.style.display = 'block';
+        }
+    }
+    
+    // Update timer position when enemy health is hidden
+    const timer = document.querySelector('#timer');
+    if (timer) {
+        if (currentScene === 2) {
+            timer.style.marginLeft = 'auto';
+        } else {
+            timer.style.marginLeft = '0';
+        }
+    }
+}
+
 let currentScene = 1;
 
 // Level manager
@@ -147,7 +169,11 @@ const levelManager = {
       if (levels[levelNumber] && levels[levelNumber].init) {
         levels[levelNumber].init();
       }
-      
+      // Update UI elements based on level
+      updateUIForLevel();
+    
+      // Start the timer for the new level
+      decreaseTimer();
       // Start the timer for the new level
       decreaseTimer();
     },
@@ -272,22 +298,17 @@ player.position = {x:0,y:0}
 
 player.imageSrc = './img/Player1/Idle.png';
 
-enemy.imageSrc = './img/Player2/Idle.png';
-
 // Update image references again
 for (const sprite in player.sprites) {
     player.sprites[sprite].image = new Image();
     player.sprites[sprite].image.src = player.sprites[sprite].imageSrc;
   }
   
-  for (const sprite in enemy.sprites) {
-    enemy.sprites[sprite].image = new Image();
-    enemy.sprites[sprite].image.src = enemy.sprites[sprite].imageSrc;
-  }
-
 // Reset sprites
 player.switchSprite('idle');
-enemy.switchSprite('idle');
+
+
+enemy.position = {x:-10000,y:-10000}
 
 //Objeleri konumlarla oluşturduk
 
@@ -306,6 +327,25 @@ framesMax: 5,
 loop: false,
 autoplay: false,
 })]
+
+gsap.to('#playerHealth', {
+    width: '100%'
+});
+
+// Hide enemy health bar
+const enemyHealthBar = document.querySelector('div:has(> #enemyHealth)');
+if (enemyHealthBar) {
+    enemyHealthBar.style.display = 'none';
+}
+
+// Update timer position
+const timer = document.querySelector('#timer');
+if (timer) {
+    timer.style.marginLeft = 'auto';
+}
+
+// Clear any display text
+document.querySelector('#displayText').style.display = 'none';
 
 }
 }
@@ -521,7 +561,7 @@ function animate(){
         updateAI();
     }
     
-    if (enemy && (currentScene === 1 || currentScene === 2)) {
+    if (enemy) {
     enemy.update();
   }
 
@@ -639,7 +679,7 @@ case 'w':
         player.position.y <= door.position.y + door.height
       ) {
         // Only allow level transition if enemy is defeated
-        if (enemy.dead) {
+        if (!enemy || enemy.dead) {
           player.velocity.x = 0;
           player.velocity.y = 0;
           player.preventInput = true;

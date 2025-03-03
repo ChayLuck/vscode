@@ -123,6 +123,7 @@ class Fighter extends Sprite {
             this.attackBox.width,
             this.attackBox.height) /*/
   
+        
         // Left boundary
         if (this.position.x < 0) {
             this.position.x = 0
@@ -131,6 +132,7 @@ class Fighter extends Sprite {
         if (this.position.x + this.width > canvas.width) {
             this.position.x = canvas.width - this.width
         }
+    
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
         if(this.position.y + this.height + this.velocity.y >= canvas.height - 196){
