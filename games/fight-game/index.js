@@ -103,11 +103,14 @@ const enemy = new Fighter({
     },
 }) 
 
+let currentScene = 1;
+
 let level = 1
 let levels = {
     1: {
         init: () => {
 
+    currentScene = 1;
     gravity = 0.7
 
 //Objeleri konumlarla oluşturduk
@@ -153,6 +156,7 @@ let levels = {
 2: {
     init: () => {
 
+currentScene = 2;
 gravity = 0.7
 
 player.position = {x:0,y:0}
@@ -361,9 +365,8 @@ function animate(){
     c.fillStyle = 'black' //arkayı her update öncesi sil
     c.fillRect(0,0,canvas.width,canvas.height)
     background.update()
-    player.gameScene1 = true
 
-    if(player.gameScene1=true){
+    if(currentScene === 1){
     girl.update()
     girl2.update()
 
@@ -375,7 +378,7 @@ function animate(){
     c.fillStyle = 'rgba(255,255,255,0.0)'
     c.fillRect(0,0,canvas.width,canvas.height)
 
-
+    player.update()
 
     // Update AI status display
     updateAIStatusDisplay()
@@ -384,8 +387,9 @@ function animate(){
     if (ai.active) {
         updateAI()
     }
-    player.update()
+    if(currentScene === 1){
     enemy.update()
+    }
 
     c.save()
     c.globalAlpha = overlay.opacity
@@ -503,7 +507,6 @@ window.addEventListener('keydown', (event) =>{
                         levels[level].init()
                         gsap.to(overlay, {opacity: 0,})
                         player.preventInput = false
-                        player.gameScene1 = false
                         }
                         return
                     }
