@@ -6,7 +6,7 @@ import numpy as np
 pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\\tesseract.exe'
 
 # Resmi yükleme
-image_path = "img/stop.jpg"  # Resmin yolunu buraya yaz
+image_path = "img/1.jpg"  # Resmin yolunu buraya yaz
 output_folder = "extracted_letters"
 
 # Klasör kontrolü
@@ -42,7 +42,7 @@ for b in boxes.splitlines():
     print(b)
     b = b.split(' ')
     x, y, w, h = int(b[1]), int(b[2]), int(b[3]), int(b[4])
-    cv2.rectangle(image, (x, hImg - y), (w, hImg - h), (50, 50, 255), 2)
+    cv2.rectangle(image, (x, hImg - y), (w, hImg - h), (0, 0, 255), 1)
     cv2.putText(image, b[0], (x, hImg - y + 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (50, 50, 255), 2)
 
 cv2.imshow('Result', image)
